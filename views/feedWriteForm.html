@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link rel="stylesheet" href="/css/gram.css" />
+    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+</head>
+<body>
+<div class="container">
+    <div class="write-wrap" style="background-color: aquamarine; border-radius: 20px; padding:15px; box-sizing: border-box; margin:10px 0">
+        <h2>Feed 작성</h2>
+        <form id="post-form" enctype="multipart/form-data">
+            <div class="field">
+                <label>작성자</label><input type="text" id="writer" readonly/>
+            </div>
+            <div class="field">
+                <label>내용</label><textarea id="content" rows="8" style="flex:4"></textarea>
+            </div>
+            <div class="field">
+                <label>이미지 미리보기</label>
+                <img id="img-preview" src="" sytle="display:none;" />
+                <input id="savefilename" type="hidden" name="savefilename">
+                <input id="image" type="hidden" name="image">
+            </div>
+            <div class="field">
+                <label id="img-label" for="img">사진 업로드</label>
+                <input id="img" type="file">
+                <button id="img-btn" type="submit" class="btn">피드 업로드</button>
+            </div>
+        </form>
+    </div>
+    <script type="text/javascript">
+        getLoginuser();
+
+        document.getElementById('post-form').addEventListener('submit', async(e)=>{
+            e.preventDefault();
+            const formData = new FormData();
+            formData.append('writer', e.target.writer.value);
+            if( !e.target.content.value){ return alert('내용을 입력하세요');}
+            formData.append('content', e.target.content.value);
+            formData.append('img', e.target.img.files[0]);
+            formData.append('image', e.target.image.value);
+            formData.append('savefilename', e.target.savefilename.value);
+
+            try{
+                const result = await axios.post( '/feed/writeFeed', formData);
+                location.href='/feed/mainlist';
+            }catch(err){
+                console.error(err);
+            }
+        });
+
+        document.getElementById('img').addEventListener('change', async (e)=>{
+            // 선택된 이미지를 업로드하고 미리보기에 표시하세요
+            const formData = new FormData();
+            formData.append( 'img', e.target.files[0] );
+            try{
+                const result = await axios.post('/feed/imgup', formData);
+                const res = result.data;
+                
+                document.getElementById('savefilename').value = res.savefilename;
+                document.getElementById('image').value = res.image;
+                document.getElementById('img-preview').src = '/img/' + res.savefilename;
+                document.getElementById('img-preview').display = 'inline';
+                document.getElementById('img-preview').style.width = '200px';
+            }catch(err){
+                console.log(err);
+            }
+        });
+        
+        async function getLoginuser(){
+            try{
+                const result = await axios.get('/user/getLoginUser');
+                const loginUser = result.data.loginUser;
+                document.getElementById('writer').value = loginUser.nickname;
+            }catch(err){
+                console.error(err)
+            }
+        }
+    </script>
+    </div>
+</body>
+</html>

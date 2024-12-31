@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link rel="stylesheet" href="/css/gram.css" />
+    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+</head>
+<body>
+    <div class="container">
+        <div class="profile-wrap">
+            <div class="profile">
+                <form id="login-form" method="post">
+                    <div class="field">
+                        <label for="email">이메일</label>
+                        <input type="text" id="email" name="email" >
+                    </div>
+                    <div class="field">
+                        <label for="password">비밀번호</label>
+                        <input id="password" type="password" name="password" >
+                    </div>
+                    <div class="field">
+                        <label for="nickname">닉네임</label>
+                        <input id="nickname" type="text" name="nickname" >
+                    </div>
+                    <div class="field">
+                        <label for="name">이름</label>
+                        <input id="name" type="text" name="name" >
+                    </div>
+                    <input type="hidden" id="sns_id" />
+
+                    <div class="btns">
+                        <button>회원정보수정</button>                        
+                    </div>
+                    <div id="message"></div>
+                </form>
+            </div>
+        </div>
+    </div>
+    <script type="text/javascript">
+        getLoginUser();
+
+        async function getLoginUser(){
+
+            try{
+                const result = await axios.get('/user/getLoginUser');
+                loginUser = result.data.loginUser;
+                console.log('loginUser : ', loginUser);
+
+                const regix = loginUser.email.match(/\w+@(\w+[.])+\w+/g)
+
+                if(regix){
+                location.href='/feed/mainList';
+                }else{
+
+                document.getElementById('email').value = loginUser.email;
+                document.getElementById('nickname').value = loginUser.nickname;
+                document.getElementById('name').value = loginUser.name;
+                document.getElementById('sns_id').value = loginUser.sns_id;
+
+                }
+                
+                
+
+            
+            }catch(err){
+                console.error(err)
+            }
+
+
+        }
+
+
+
+
+        document.getElementById('login-form').addEventListener('submit', async (e)=>{
+            e.preventDefault();
+            const email = e.target.email.value;
+            const nickname = e.target.nickname.value;
+            const name = e.target.name.value;
+            const sns_id = e.target.sns_id.value;
+
+            if( !email ) { return alert('이메일을 입력하세요');}
+            if( !nickname ) { return alert('닉네임을 입력하세요');}
+            if( !name ) { return alert('이름을 입력하세요');}
+            if( !sns_id ) { return alert('sns_id가 누락되었습니다.');}
+
+            try{
+                const result = await axios.post('/user/updateProfile',{email,nickname,name,sns_id});
+                const msg = result.data;
+
+                console.log("msg:",msg);
+
+                if(msg=='ok'){
+                    location.href = '/feed/mainlist';
+                }else{
+                    document.getElementById('message').innerHTML = msg;
+                }
+            }catch(err){
+
+            }
+
+
+
+        });
+
+
+
+
+    </script>
+    
+</body>
+</html>

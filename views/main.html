@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link rel="stylesheet" href="/css/gram.css" />
+    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+</head>
+<body>
+    <div class="container">
+    <form id="login-form" method="post">
+        <div class="field">
+            <label id="email">이메일</label>
+            <input type="text" id="email" name="email" >
+        </div>
+        <div class="field">
+            <label for="password">비밀번호</label>
+            <input id="pwd" type="password" name="pwd" >
+        </div>
+        <div class="btns">
+            <button>로그인</button>
+            <input type="button" value="회원가입" onClick="location.href='/user/joinform'"/>
+            <input type="button" value="카카오톡" onClick="location.href='/user/kakao'"/>
+        </div>
+        <div id="message"></div>
+    </form>
+</div>
+
+    <script type="text/javascript">
+        document.getElementById('login-form').addEventListener('submit', async (e)=>{
+            e.preventDefault();
+            const email = e.target.email.value;
+            const pwd = e.target.pwd.value;
+            if( !email ){ return alert('이메일을 입력하세요'); }
+            if( !pwd ){ return alert('비밀번호를 입력하세요'); }
+            try{
+                const result = await axios.post('/user/login', {email, pwd});
+                const msg = result.data.msg;
+                console.log(result);
+                if( msg != 'ok'){
+                    document.getElementById('message').innerHTML=msg;
+                }else{
+                    location.href='/feed/mainlist';
+                }
+            }catch(err){}
+        });
+    </script>
+</body>
+</html>

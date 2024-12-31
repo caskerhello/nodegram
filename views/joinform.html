@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link rel="stylesheet" href="/css/gram.css" />
+    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+</head>
+<body>
+    <div class="container">
+        <div class="profile-wrap">
+            <div class="profile">
+                <form id="login-form" method="post">
+                    <div class="field">
+                        <label id="email">이메일</label>
+                        <input type="text" id="email" name="email" >
+                    </div>
+                    <div class="field">
+                        <label for="password">비밀번호</label>
+                        <input id="password" type="password" name="password" >
+                    </div>
+                    <div class="field">
+                        <label for="password">닉네임</label>
+                        <input id="nick" type="text" name="nick" >
+                    </div>
+                    <div class="btns">
+                        <button>회원가입</button>
+                        <input type="button" value="되돌아가기" onClick="location.href='/'"/>
+                    </div>
+                    <div id="message"></div>
+                </form>
+            </div>
+        </div>
+    </div>
+    <script type="text/javascript">
+        document.getElementById('login-form').addEventListener('submit', async (e)=>{
+            e.preventDefault();
+            const email = e.target.email.value;
+            const pwd = e.target.password.value;
+            const nick = e.target.nick.value;
+            if( !email ){ return alert('이메일을 입력하세요'); }
+            if( !pwd ){ return alert('비밀번호를 입력하세요'); }
+            if( !nick ){ return alert('닉네임을 입력하세요'); }
+            
+            try{
+                const result = await axios.post('/user/join', {email, pwd, nick});
+                const msg = result.data.msg;
+                // console.log(result);
+                if( msg != 'ok'){
+                    document.getElementById('message').innerHTML=msg;
+                    // 이메일이 사용중입니다.   닉네임이 사용중입니다.
+                }else{
+                    alert('회원가입이 완료되었습니다. 로그인 하세요')
+                    location.href='/';
+                }
+            }catch(err){}
+        });
+    </script>
+</body>
+</html>

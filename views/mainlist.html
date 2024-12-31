@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link rel="stylesheet" href="/css/gram.css" />
+    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+</head>
+<body>
+    <div class="container">
+        <div class="profile-wrap">
+            <div class="profile">
+                <div class="field">
+                    <label><span id="nickname"></span> 님 안녕하세요</label>
+                </div>
+                <div class="field" style="display: flex; flex-direction: row;">
+                    <div style="flex:1; font-weight:bold; text-align: center;">
+                        팔로워<br /><span id="followers"></span>
+                    </div>
+                    <div style="flex:1; font-weight:bold;  text-align: center;">
+                        팔로잉<br /><span id="followings"></span>
+                    </div>
+                </div>
+                <div class="btns">
+                    <input type="button" value="회원정보상세" onClick="location.href='/user/userdetail'">
+                    <input type="button" value="로그아웃" onClick="location.href='/user/logout'">
+                    <input type="button" value="피드작성" onClick="location.href='/feed/feedWriteForm'">
+                </div>
+            </div>
+        </div>
+
+
+        <div class="search-wrap">
+            <form id="hashtag-form" method="post">
+                <div class="field">
+                    <input type="text" id="word"/>
+                    <button>검색</button>
+                </div>
+            </form>
+        </div>
+
+
+        <div id="feedlist"></div>
+
+    </div>
+    <script type="text/javascript">
+        let loginUser = {};
+        let followers = [];
+        let followings = [];
+
+        getLoginuser();
+        getFeedList();
+
+        function displayFeed( feeds ){
+        
+            if( feeds ){
+
+                    const feedlist = document.querySelector("#feedlist");
+                    feedlist.innerHTML = '';
+
+                    feeds.map((feed, idx)=>{   // feeds 배열의 요소들이 feed 변수에 하나씩 저장되며 반복 실행
+
+                        let feed_wrap = document.createElement('div');
+                        feed_wrap.className = 'feed_wrap';
+
+                        let feed_author = document.createElement('div');
+                        feed_author.className = 'feed_author';
+                        feed_author.textContent = feed.num + "  " + feed.writer;
+
+                        let follow_button = document.createElement('button');
+                        follow_button.textContent='FOLLOW';
+                        follow_button.style.margin = '0 10px';
+                        
+                        if( loginUser.nickname != feed.writer &&  (  !followings.includes(feed.writer)  )){
+                            feed_author.appendChild( follow_button );
+                        }
+
+                        follow_button.addEventListener('click', async (e)=>{
+                            if( !confirm(feed.writer + '님을 Follow 하시겠습니까') ){
+                                return;
+                            }
+                            try{
+                                const result = await axios.post('/user/follow', {follow_from:loginUser.nickname,  follow_to:feed.writer} );
+                                //if( result.data == 'ok'){
+                                alert(feed.writer + '님을 Follow 합니다');
+                                getLoginuser();
+                                getFeedList();
+                                //}else{
+                                //    alert(feed.writer + '님을 이미 Follow 하고 있습니다');
+                                //}
+
+                            }catch(err){
+                                console.error(err);
+                            }
+                        });
+
+
+
+                        let unfollow = document.createElement('button');
+                        unfollow.textContent='UNFOLLOW';
+                        unfollow.style.margin = '0 10px';
+                        if( loginUser.nickname != feed.writer &&  (  followings.includes(feed.writer)  )){
+                            feed_author.appendChild( unfollow );
+                        }
+
+                        unfollow.addEventListener('click', async (e)=>{
+                            if( !confirm(feed.writer + '님을 unFollow 하시겠습니까') ){
+                                return;
+                            }
+                            try{
+                                const result = await axios.post('/user/unfollow', {follow_from:loginUser.nickname,  follow_to:feed.writer} );
+                                alert(feed.writer + '님을 unFollow 합니다');
+                                getLoginuser();
+                                getFeedList();
+                            }catch(err){
+                                console.error(err);
+                            }
+                        });
+
+                        let feed_img = document.createElement('div');
+                        feed_img.className  = 'feed_img';
+                        feed_img.innerHTML = "<img src='/img/" + feed.savefilename + "' />";
+
+                        let feed_info = document.createElement('div');
+                        feed_info.className = 'feed_info';
+
+                        let feed_content = document.createElement('div');
+                        feed_content.className = 'feed_content';
+                        feed_content.innerHTML = "<pre>" + feed.content + "</pre>";
+                        feed_info.appendChild( feed_content );
+
+                        // 현재는 댓글 좋아요 생략
+
+                        feed_wrap.appendChild( feed_author );
+                        feed_wrap.appendChild( feed_img );
+                        feed_wrap.appendChild( feed_info );
+
+                        feedlist.appendChild( feed_wrap );
+                    });
+
+
+                }else{
+                    //
+                }
+        }
+
+        document.getElementById('hashtag-form').addEventListener('submit', async (e)=>{
+            e.preventDefault();
+            const word = e.target.word.value;
+            if(!word){
+                getFeedList();
+                return;
+            }
+            try{
+                const result = await axios.post('/feed/search', {word});
+                const feeds = result.data;
+                
+                displayFeed( feeds );
+
+            }catch(err){
+                console.error(err);
+            }
+        });
+
+
+        async function getFeedList(){
+            try{
+                const result = await axios.get('/feed/getFeedList');
+                const feeds = result.data;
+                console.log( feeds );
+
+                displayFeed(feeds );
+
+            }catch(err){
+                console.error(err);
+            }
+        }
+
+        async function getLoginuser(){
+            try{
+                const result = await axios.get('/user/getLoginUser');
+                loginUser = result.data.loginUser;
+                console.log('loginUser : ', loginUser);
+                document.getElementById('nickname').innerHTML = loginUser.nickname;
+
+                followers = result.data.followers;
+                followings = result.data.followings;
+                document.getElementById('followings').innerHTML = followings.length;
+                document.getElementById('followers').innerHTML = followers.length;
+
+            }catch(err){
+                console.error(err)
+            }
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,29 @@
+.container{ width: 100%; height: 100vh; }
+@media (min-width: 800px) {  
+    .container { width: 800px; margin: 0 auto; }  
+} 
+
+.profile-wrap{ width:100%; border:1px solid red; margin:1px;}
+.profile{width:100%; border:1px solid blue; margin:1px;}
+#login-form{width:100%; border:1px solid blue; padding:10px; box-sizing: border-box; margin:1px; display: flex; flex-direction: column;}
+.field{ border:1px solid magenta; display: flex; margin:10px 0;}
+.field label{ flex : 1; font-weight: bold; font-size: 1.1rem;}
+.field input{ flex : 3;font-weight: bold; font-size: 1.1rem;}
+.btns{border:1px solid magenta; display: flex; margin:10px 0;}
+.btns input{flex : 1; margin:3px; height:35px; background-color: yellow;}
+.btns button{flex : 1; margin:3px; height:35px; background-color: orange;}
+
+.search-wrap{ width:100%; background-color: rgb(235, 194, 81); border-radius: 10px; margin:10px 0; padding:10px; box-sizing: border-box; }
+
+.feed_wrap{ display: flex; flex-direction: column; width:100%; background-color: rgb(221, 245, 197); border-radius: 10px; margin:10px 0; padding:10px; box-sizing: border-box;}
+.feed_img{ flex:1; padding:10px; box-sizing: border-box;}
+.feed_img img{ width:100%;}
+.feed_info{ flex:1; display: flex; flex-direction: column; padding:10px; box-sizing: border-box; align-items: flex-start; justify-content: flex-start;}
+
+.feed_author{ font-size: 1.1rem; font-weight: bold; }
+.feed_content{ margin-top:20px;}
+
+@media (max-width: 800px) {  
+    .btns , .field, .feed-wrap { flex-direction: column; } 
+    .feed-img img{ width:100%}
+} 
