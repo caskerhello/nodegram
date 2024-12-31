@@ -216,7 +216,7 @@ router.post('/updateProfile', async(req,res,next)=>{
         let [result] = await connection.query(sql, [email, nickname, name, sns_id]);
         
         
-        req.session[req.cookies.session] = email;
+        req.session[req.cookies.session] = {email:email, nickname:nickname, name:name, sns_id:sns_id};
 
         console.log("email:",req.session[req.cookies.session])
 
