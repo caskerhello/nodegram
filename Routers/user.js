@@ -94,14 +94,21 @@ router.get('/getLoginUser', async (req, res, next)=>{
         //let followings = rows.map((row)=>{
         //    return row.follow_to;
         //});  // rows 가 원래 배열이었기때문에 각 요소들로 실행되고 리턴된 데이터로 다시 배열이 구성되고 결과가  followings 변수에 저장됩니다
+        
+
+        
         let followings = (rows.length>=1) ? rows.map( (row)=>(row.follow_to) ) : [];
+        
+        
+        
         //console.log( rows );
         //console.log( followings );
 
         sql = 'select * from follow where follow_to = ?';
         let [rows2, fields2] = await connection.query(sql, [loginUser.nickname]);
         let followers = (rows2.length>=1) ? rows2.map( (row)=>(row.follow_from) ) : [];
-        
+        //map에 의해서 각 요소별 반복실행으로 리턴되는 값이 하나의 변수에 전달된다면 배열로 저장
+
         res.json({loginUser:loginUser, followers:followers , followings:followings  });
     
     }catch(err){
